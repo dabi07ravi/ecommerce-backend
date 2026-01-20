@@ -1,4 +1,4 @@
-require("dotenv").config();
+require('dotenv').config()
 
 module.exports = {
   development: {
@@ -7,7 +7,7 @@ module.exports = {
     database: process.env.DB_NAME,
     host: process.env.DB_HOST,
     dialect: "mysql",
-    logging: console.log
+    logging: console.log,
   },
 
   test: {
@@ -16,7 +16,7 @@ module.exports = {
     database: process.env.DB_TEST_NAME,
     host: process.env.DB_HOST,
     dialect: "mysql",
-    logging: false
+    logging: false,
   },
 
   production: {
@@ -30,7 +30,7 @@ module.exports = {
       max: 10,
       min: 2,
       acquire: 30000,
-      idle: 10000
-    }
-  }
+      idle: 10000,
+    },
+  },
 };
