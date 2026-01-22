@@ -5,7 +5,7 @@ const bcrypt = require("bcrypt");
 module.exports = (sequelize, DataTypes) => {
   class User extends Model {
     static associate(models) {
-      RefreshToken.belongsTo(models.User, { foreignKey: "userId", as: "user" });
+      User.hasMany(models.RefreshToken, { foreignKey: "userId", as: "user" });
     }
   }
   User.init(

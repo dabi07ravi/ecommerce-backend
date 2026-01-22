@@ -3,6 +3,7 @@ const helmet = require("helmet");
 const cors = require("cors");
 const morgan = require("morgan");
 const checkDatabaseConnection = require("./src/configs/database");
+const authRoutes = require("./src/routes/auth.routes");
 
 const app = express();
 
@@ -22,5 +23,8 @@ checkDatabaseConnection();
 app.get("/health", (req, res) => {
   res.status(200).json({ status: "OK" });
 });
+
+// api
+app.use("/api/auth", authRoutes);
 
 module.exports = app;
