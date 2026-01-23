@@ -4,6 +4,8 @@ const cors = require("cors");
 const morgan = require("morgan");
 const checkDatabaseConnection = require("./src/configs/database");
 const authRoutes = require("./src/routes/auth.routes");
+const authMiddleware = require("./src/middlewares/auth.middleware");
+const roleMiddleware = require("./src/middlewares/role.middleware");
 
 const app = express();
 
@@ -20,7 +22,7 @@ app.use(express.json());
 // test database connection
 checkDatabaseConnection();
 
-app.get("/health", (req, res) => {
+app.get("/health", authMiddleware, roleMiddleware("CUSTOMER"), (req, res) => {
   res.status(200).json({ status: "OK" });
 });
 
