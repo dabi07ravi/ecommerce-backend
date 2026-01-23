@@ -35,7 +35,7 @@ const loginUser = async ({ email, password }) => {
   const isMatch = await bcrypt.compare(password, user.password);
   if (!isMatch) throw new Error("Invalid credentials");
 
-  const payload = { id: user.id, email: user.email };
+  const payload = { id: user.id, email: user.email, role: user.role };
 
   const accessToken = generateAccessToken(payload);
   const refreshToken = generateRefreshToken(payload);
