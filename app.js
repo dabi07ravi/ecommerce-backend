@@ -29,4 +29,11 @@ app.get("/health", authMiddleware, roleMiddleware("CUSTOMER"), (req, res) => {
 // api
 app.use("/api/auth", authRoutes);
 
+app.use((req, res, next) => {
+  res.status(404).json({
+    status: "fail",
+    message: `Route: ${req.originalUrl} is not found.`,
+  });
+});
+
 module.exports = app;
