@@ -7,6 +7,7 @@ const authRoutes = require("./src/routes/auth.routes");
 const authMiddleware = require("./src/middlewares/auth.middleware");
 const roleMiddleware = require("./src/middlewares/role.middleware");
 const ownerShipMiddleware = require("./src/middlewares/ownershipmiddleware");
+const errorHandlerMiddleware = require("./src/middlewares/errorhandler")
 
 const app = express();
 
@@ -42,5 +43,8 @@ app.use((req, res, next) => {
     message: `Route: ${req.originalUrl} is not found.`,
   });
 });
+
+
+app.use(errorHandlerMiddleware);
 
 module.exports = app;

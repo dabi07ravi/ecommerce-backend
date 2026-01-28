@@ -1,6 +1,6 @@
 const authService = require("../services/auth.service");
 
-const register = async (req, res) => {
+const register = async (req, res, next) => {
   try {
     const user = await authService.registerUser(req.body);
     res.status(201).json({
@@ -8,43 +8,40 @@ const register = async (req, res) => {
       user,
     });
   } catch (err) {
-    res.status(400).json({ error: err.message });
+    next(err);
   }
 };
 
-const login = async (req, res) => {
+const login = async (req, res, next) => {
   try {
     const tokens = await authService.loginUser(req.body);
     res.status(200).json(tokens);
   } catch (err) {
-    res.status(400).json({ error: err.message });
+    next(err);
   }
 };
 
-const refreshToken = async (req, res) => {
+const refreshToken = async (req, res, next) => {
   try {
     const tokens = await authService.refreshToken(req.body.refreshToken);
     res.status(200).json(tokens);
   } catch (err) {
-    res.status(400).json({ error: err.message });
+    next(err);
   }
 };
 
-const logout = async (req, res) => {
+const logout = async (req, res, next) => {
   try {
     await authService.logoutUser(req.body.refreshToken);
-    res.status(200).json({ message: 'Logged out successfully' });
+    res.status(200).json({ message: "Logged out successfully" });
   } catch (err) {
-    res.status(400).json({ error: err.message });
+    next(err);
   }
 };
-
 
 module.exports = {
   register,
   login,
   refreshToken,
-  logout
+  logout,
 };
-
-

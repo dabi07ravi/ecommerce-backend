@@ -30,10 +30,10 @@ const registerUser = async ({ name, email, password }) => {
 
 const loginUser = async ({ email, password }) => {
   const user = await User.findOne({ where: { email } });
-  if (!user) throw new Error("Invalid credentials");
+  if (!user) throw new Error("Invalid email credentials");
 
   const isMatch = await bcrypt.compare(password, user.password);
-  if (!isMatch) throw new Error("Invalid credentials");
+  if (!isMatch) throw new Error("Invalid password credentials");
 
   const payload = { id: user.id, email: user.email, role: user.role };
 
