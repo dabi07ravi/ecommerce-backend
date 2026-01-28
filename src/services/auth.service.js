@@ -1,3 +1,6 @@
+const AppError = require('../utils/appError')
+
+
 const { User, RefreshToken } = require("../models");
 const {
   generateAccessToken,
@@ -10,7 +13,7 @@ const registerUser = async ({ name, email, password }) => {
   // 1. Check if user already exists
   const existingUser = await User.findOne({ where: { email } });
   if (existingUser) {
-    throw new Error("User already exists");
+    throw new AppError("User already exists", 400);
   }
 
   // 2. Create user
@@ -30,10 +33,10 @@ const registerUser = async ({ name, email, password }) => {
 
 const loginUser = async ({ email, password }) => {
   const user = await User.findOne({ where: { email } });
-  if (!user) throw new Error("Invalid email credentials");
+  if (!user) throw new AppError("Invalid email credentials", 400);
 
   const isMatch = await bcrypt.compare(password, user.password);
-  if (!isMatch) throw new Error("Invalid password credentials");
+  if (!isMatch) throw new AppError("Invalid password credentials", 400);
 
   const payload = { id: user.id, email: user.email, role: user.role };
 
@@ -53,7 +56,7 @@ const refreshToken = async (oldToken) => {
   const storedToken = await RefreshToken.findOne({
     where: { token: oldToken, isRevoked: false },
   });
-  if (!storedToken) throw new Error("Invalid refresh token");
+  if (!storedToken) throw new AppError("Invalid refresh token", 400);
 
   if (storedToken.expiresAt < new Date()) {
     throw new Error("Refresh token expired");

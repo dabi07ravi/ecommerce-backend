@@ -1,3 +1,6 @@
+const AppError = require('../utils/appError')
+
+
 const { Product } = require("../models");
 
 getAll = async () => {
@@ -7,7 +10,7 @@ getAll = async () => {
 getById = async (id) => {
   const product = await Product.findByPk(id);
   if (!product) {
-    throw new Error("Product not found", 404);
+    throw new AppError("Product not found", 404);
   }
   return product;
 };
@@ -19,12 +22,12 @@ create = async (data) => {
 update = async (productId, data, user) => {
   const product = await Product.findByPk(productId);
   if (!product) {
-    throw new Error("Product not found", 404);
+    throw new AppError("Product not found", 404);
   }
 
   // Ownership check
   if (user.role !== "ADMIN" && product.createdBy !== user.id) {
-    throw new Error("Forbidden", 403);
+    throw new AppError("Forbidden", 403);
   }
 
   return product.update(data);
@@ -33,11 +36,11 @@ update = async (productId, data, user) => {
 remove = async (productId, user) => {
   const product = await Product.findByPk(productId);
   if (!product) {
-    throw new Error("Product not found", 404);
+    throw new AppError("Product not found", 404);
   }
 
   if (user.role !== "ADMIN" && product.createdBy !== user.id) {
-    throw new Error("Forbidden", 403);
+    throw new AppError("Forbidden", 403);
   }
 
   await product.destroy();
