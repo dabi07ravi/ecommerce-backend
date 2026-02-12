@@ -32,7 +32,9 @@ const refreshToken = async (req, res, next) => {
 
 const logout = async (req, res, next) => {
   try {
-    await authService.logoutUser(req.body.refreshToken);
+    const { sessionId, id } = req.user;
+
+    await authService.logoutUser(sessionId, id);
     res.status(200).json({ message: "Logged out successfully" });
   } catch (err) {
     next(err);

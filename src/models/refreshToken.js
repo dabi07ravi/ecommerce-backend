@@ -20,7 +20,7 @@ module.exports = (sequelize, DataTypes) => {
         allowNull: false,
       },
       token: {
-        type: DataTypes.STRING,
+        type: DataTypes.TEXT,
         allowNull: false,
         unique: true,
       },
@@ -31,6 +31,10 @@ module.exports = (sequelize, DataTypes) => {
       },
       expiresAt: {
         type: DataTypes.DATE,
+        allowNull: false,
+      },
+      sessionId: {
+        type: DataTypes.UUID,
         allowNull: false,
       },
     },

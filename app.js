@@ -10,7 +10,6 @@ const roleMiddleware = require("./src/middlewares/role.middleware");
 const ownerShipMiddleware = require("./src/middlewares/ownershipmiddleware");
 const errorHandlerMiddleware = require("./src/middlewares/errorhandler");
 
-const redis = require('./src/configs/redis');
 
 const app = express();
 
