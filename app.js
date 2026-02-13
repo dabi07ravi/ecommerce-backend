@@ -5,6 +5,7 @@ const morgan = require("morgan");
 const checkDatabaseConnection = require("./src/configs/database");
 const authRoutes = require("./src/routes/auth.routes");
 const productRoutes = require("./src/routes/product.routes");
+const cartRoutes = require("./src/routes/cart.routes");
 const authMiddleware = require("./src/middlewares/auth.middleware");
 const roleMiddleware = require("./src/middlewares/role.middleware");
 const ownerShipMiddleware = require("./src/middlewares/ownershipmiddleware");
@@ -39,6 +40,8 @@ app.get(
 // api
 app.use("/api/auth", authRoutes);
 app.use("/api/product", productRoutes);
+app.use("/api/cart", cartRoutes);
+
 
 app.use((req, res, next) => {
   res.status(404).json({
