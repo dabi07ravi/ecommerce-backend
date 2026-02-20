@@ -4,7 +4,6 @@ const { Model } = require("sequelize");
 module.exports = (sequelize, DataTypes) => {
   class Order extends Model {
     static associate(models) {
-
       Order.belongsTo(models.User, {
         foreignKey: "userId",
         as: "user",
@@ -14,7 +13,6 @@ module.exports = (sequelize, DataTypes) => {
         foreignKey: "orderId",
         as: "items",
       });
-
     }
   }
 
@@ -40,19 +38,20 @@ module.exports = (sequelize, DataTypes) => {
         type: DataTypes.ENUM(
           "CREATED",
           "PAID",
+          "PROCESSING",
           "SHIPPED",
+          "OUT_FOR_DELIVERY",
           "DELIVERED",
-          "CANCELLED"
+          "CANCELLED",
+          "RETURN_REQUESTED",
+          "RETURNED",
+          "REFUNDED",
         ),
         defaultValue: "CREATED",
       },
 
       paymentStatus: {
-        type: DataTypes.ENUM(
-          "PENDING",
-          "SUCCESS",
-          "FAILED"
-        ),
+        type: DataTypes.ENUM("PENDING", "SUCCESS", "FAILED"),
         defaultValue: "PENDING",
       },
     },
@@ -61,7 +60,7 @@ module.exports = (sequelize, DataTypes) => {
       modelName: "Order",
       tableName: "Orders",
       timestamps: true,
-    }
+    },
   );
 
   return Order;

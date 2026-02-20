@@ -1,0 +1,12 @@
+allowedTransitions = {
+  CREATED: ["PAID", "CANCELLED"],
+  PAID: ["PROCESSING", "CANCELLED"],
+  PROCESSING: ["SHIPPED", "CANCELLED"],
+  SHIPPED: ["OUT_FOR_DELIVERY"],
+  OUT_FOR_DELIVERY: ["DELIVERED"],
+  DELIVERED: ["RETURN_REQUESTED"],
+  RETURN_REQUESTED: ["RETURNED"],
+  RETURNED: ["REFUNDED"],
+};
+
+module.exports = { allowedTransitions };
