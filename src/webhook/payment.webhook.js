@@ -1,9 +1,8 @@
 const crypto = require("crypto");
 const paymentService = require("../services/payment.service");
-const { PaymentLog } = require("../../models");
+const { PaymentLog, Refund, Order } = require("../../models");
 
 exports.handleWebhook = async (req, res) => {
-
   const signature = req.headers["x-razorpay-signature"];
 
   const expected = crypto
@@ -26,7 +25,6 @@ exports.handleWebhook = async (req, res) => {
   });
 
   if (event === "payment.captured") {
-
     const payment = payload.payment.entity;
 
     await paymentService.markPaymentSuccess({
@@ -34,6 +32,24 @@ exports.handleWebhook = async (req, res) => {
       paymentId: payment.id,
       signature: "webhook",
     });
+  }
+
+  if (event === "refund.processed") {
+    const refundId = payload.refund.entity.id;
+
+    const refund = await Refund.findOne({
+      where: { razorpayRefundId: refundId },
+    });
+
+    if (refund) {
+      refund.status = "REFUNDED";
+      await refund.save();
+
+      await Order.update(
+        { status: "REFUNDED" },
+        { where: { id: refund.orderId } },
+      );
+    }
   }
 
   res.json({ status: "ok" });

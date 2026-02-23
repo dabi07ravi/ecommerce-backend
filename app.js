@@ -8,12 +8,12 @@ const productRoutes = require("./src/routes/product.routes");
 const cartRoutes = require("./src/routes/cart.routes");
 const orderRoutes = require("./src/routes/order.routes");
 const paymentRoutes = require("./src/routes/payment.routes");
-const orderLifeCycleRoutes = require("./src/routes/orderLifeCycle.routes")
+const orderLifeCycleRoutes = require("./src/routes/orderLifeCycle.routes");
+const refundProcessRoutes = require("./src/routes/refund.routes");
 const authMiddleware = require("./src/middlewares/auth.middleware");
 const roleMiddleware = require("./src/middlewares/role.middleware");
 const ownerShipMiddleware = require("./src/middlewares/ownershipmiddleware");
 const errorHandlerMiddleware = require("./src/middlewares/errorhandler");
-
 
 const app = express();
 
@@ -44,12 +44,10 @@ app.get(
 app.use("/api/auth", authRoutes);
 app.use("/api/product", productRoutes);
 app.use("/api/cart", cartRoutes);
-app.use('/api/order', orderRoutes);
-app.use('/api/payment', paymentRoutes);
-app.use('/api/orderLifeCycle', orderLifeCycleRoutes);
-
-
-
+app.use("/api/order", orderRoutes);
+app.use("/api/payment", paymentRoutes);
+app.use("/api/orderLifeCycle", orderLifeCycleRoutes);
+app.use("./api/refund", refundProcessRoutes);
 
 app.use((req, res, next) => {
   res.status(404).json({
