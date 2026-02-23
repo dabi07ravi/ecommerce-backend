@@ -3,12 +3,12 @@ const crypto = require("crypto");
 
 const { Payment, Order, sequelize } = require("../models");
 
+const inventoryService = require("../services/inventoryService");
 
 /**
  * 1️⃣ Create Razorpay Order
  */
 const createPaymentOrder = async ({ userId, orderId, amount }) => {
-
   const dbOrder = await Order.findByPk(orderId);
 
   if (!dbOrder) {
@@ -35,13 +35,10 @@ const createPaymentOrder = async ({ userId, orderId, amount }) => {
   return razorpayOrder;
 };
 
-
-
 /**
  * 2️⃣ Verify Signature (Frontend Flow)
  */
 const verifySignature = ({ orderId, paymentId, signature }) => {
-
   const body = orderId + "|" + paymentId;
 
   const expected = crypto
@@ -52,15 +49,15 @@ const verifySignature = ({ orderId, paymentId, signature }) => {
   return expected === signature;
 };
 
-
-
 /**
  * 3️⃣ Mark Payment Success (Transactional + Idempotent)
  */
-const markPaymentSuccess = async ({ razorpayOrderId, paymentId, signature }) => {
-
+const markPaymentSuccess = async ({
+  razorpayOrderId,
+  paymentId,
+  signature,
+}) => {
   return sequelize.transaction(async (t) => {
-
     const payment = await Payment.findOne({
       where: { razorpayOrderId },
       transaction: t,
@@ -84,23 +81,65 @@ const markPaymentSuccess = async ({ razorpayOrderId, paymentId, signature }) => 
 
     await payment.save({ transaction: t });
 
+    // 2️⃣ 🔥 CONFIRM INVENTORY
+    await inventoryService.confirmReservation(payment.orderId, t);
+
     // Update order status
     await Order.update(
       { status: "PAID" },
       {
         where: { id: payment.orderId },
         transaction: t,
-      }
+      },
+    );
+
+    // 4️⃣ Clear cart AFTER successful payment
+    const order = await Order.findByPk(payment.orderId, {
+      transaction: t,
+    });
+
+    await CartItem.destroy({
+      where: { userId: order.userId },
+      transaction: t,
+    });
+
+    return payment;
+  });
+};
+
+const markPaymentFailed = async ({ razorpayOrderId, paymentId, signature }) => {
+  return sequelize.transaction(async (t) => {
+    const payment = await Payment.findOne({
+      where: { razorpayOrderId },
+      transaction: t,
+      lock: t.LOCK.UPDATE,
+    });
+
+    if (!payment) throw new Error("Payment not found");
+
+    if (payment.status === "FAILED") return payment;
+
+    payment.status = "FAILED";
+    await payment.save({ transaction: t });
+
+    // 🔥 RELEASE INVENTORY
+    await inventoryService.releaseReservation(payment.orderId, t);
+
+    await Order.update(
+      { status: "PAYMENT_FAILED" },
+      {
+        where: { id: payment.orderId },
+        transaction: t,
+      },
     );
 
     return payment;
   });
 };
 
-
-
 module.exports = {
   createPaymentOrder,
   verifySignature,
   markPaymentSuccess,
+  markPaymentFailed
 };

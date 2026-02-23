@@ -24,6 +24,15 @@ exports.handleWebhook = async (req, res) => {
     status: "RECEIVED",
   });
 
+  if (event === "payment.failed") {
+    const payment = payload.payment.entity;
+    await paymentService.markPaymentFailed({
+      razorpayOrderId: payment.order_id,
+      paymentId: payment.id,
+      signature: "webhook",
+    });
+  }
+
   if (event === "payment.captured") {
     const payment = payload.payment.entity;
 

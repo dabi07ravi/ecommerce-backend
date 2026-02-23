@@ -47,6 +47,11 @@ module.exports = (sequelize, DataTypes) => {
         },
       },
 
+      reservedStock: {
+        type: DataTypes.INTEGER,
+        defaultValue: 0,
+      },
+
       createdBy: {
         type: DataTypes.INTEGER,
         allowNull: false,
@@ -57,7 +62,7 @@ module.exports = (sequelize, DataTypes) => {
       modelName: "Product",
       tableName: "Products",
       timestamps: true,
-    }
+    },
   );
 
   return Product;

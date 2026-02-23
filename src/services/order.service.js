@@ -7,6 +7,9 @@ const {
   OrderItem,
 } = require("../models");
 
+
+const inventoryService = require('../services/inventoryService')
+
 const placeOrder = async (userId) => {
   return sequelize.transaction(async (t) => {
     // 1️⃣ Load cart
@@ -36,9 +39,9 @@ const placeOrder = async (userId) => {
 
       totalAmount += Number(item.priceSnapshot) * item.quantity;
 
-      // Reduce stock
-      product.stock -= item.quantity;
-      await product.save({ transaction: t });
+      // // Reduce stock
+      // product.stock -= item.quantity;
+      // await product.save({ transaction: t });
     }
 
     // 3️⃣ Create order
@@ -63,32 +66,32 @@ const placeOrder = async (userId) => {
       );
     }
 
+    // 5️⃣ 🔥 RESERVE INVENTORY
+    await inventoryService.reserveStock(order.id, cart.items);
+
     // 5️⃣ Clear cart
-    await CartItem.destroy({
-      where: { cartId: cart.id },
-      transaction: t,
-    });
+    // await CartItem.destroy({
+    //   where: { cartId: cart.id },
+    //   transaction: t,
+    // });
+    // ❌ DO NOT CLEAR CART HERE
 
     return order;
   });
 };
 
-
-  const getMyOrders = async(userId) =>  {
-    return await Order.findAll({
-      where: { userId },
-      include: [OrderItem]
-    });
-  }
-
+const getMyOrders = async (userId) => {
+  return await Order.findAll({
+    where: { userId },
+    include: [OrderItem],
+  });
+};
 
 const getOrderById = async (orderId, userId) => {
-    return await Order.findOne({
-      where: { id: orderId, userId },
-      include: [OrderItem]
-    });
-  }
-
-
+  return await Order.findOne({
+    where: { id: orderId, userId },
+    include: [OrderItem],
+  });
+};
 
 module.exports = { placeOrder, getMyOrders, getOrderById };
