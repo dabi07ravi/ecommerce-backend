@@ -50,6 +50,7 @@ const verifyPayment = async (req, res, next) => {
     }
 
     await paymentService.markPaymentSuccess({
+      user: req.user,
       razorpayOrderId: razorpay_order_id,
       paymentId: razorpay_payment_id,
       signature: razorpay_signature,

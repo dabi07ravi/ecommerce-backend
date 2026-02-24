@@ -4,6 +4,7 @@ const crypto = require("crypto");
 const { Payment, Order, sequelize } = require("../models");
 
 const inventoryService = require("../services/inventoryService");
+const notificationService = require("../notification/notification.service");
 
 /**
  * 1️⃣ Create Razorpay Order
@@ -53,6 +54,7 @@ const verifySignature = ({ orderId, paymentId, signature }) => {
  * 3️⃣ Mark Payment Success (Transactional + Idempotent)
  */
 const markPaymentSuccess = async ({
+  user,
   razorpayOrderId,
   paymentId,
   signature,
@@ -103,6 +105,14 @@ const markPaymentSuccess = async ({
       transaction: t,
     });
 
+    await notificationService.sendNotification({
+      type: "PAYMENT_SUCCESS",
+      email: user.email,
+      payload: {
+        orderId: payment.id,
+      },
+    });
+
     return payment;
   });
 };
@@ -137,9 +147,14 @@ const markPaymentFailed = async ({ razorpayOrderId, paymentId, signature }) => {
   });
 };
 
+const markPaymentRefunded = async (id, status) => {
+  await Order.update({ status }, { where: { id: id } });
+};
+
 module.exports = {
   createPaymentOrder,
   verifySignature,
   markPaymentSuccess,
-  markPaymentFailed
+  markPaymentFailed,
+  markPaymentRefunded,
 };

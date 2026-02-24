@@ -2,7 +2,7 @@ const orderService = require("../services/order.service");
 
 const placeOrder = async (req, res, next) => {
   try {
-    const order = await orderService.placeOrder(req.user.id);
+    const order = await orderService.placeOrder(req.user);
     res.status(201).json(order);
   } catch (err) {
     next(err);

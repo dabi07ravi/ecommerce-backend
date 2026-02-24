@@ -1,6 +1,8 @@
 const Razorpay = require("razorpay");
 const { Refund, Order, Payment } = require("../models");
 
+const notificationService = require("../notification/notification.service");
+
 const razorpay = new Razorpay({
   key_id: process.env.RAZORPAY_KEY,
   key_secret: process.env.RAZORPAY_SECRET,
@@ -35,6 +37,14 @@ const initiateRefund = async (orderId, reason) => {
 
   order.status = "REFUND_INITIATED";
   await order.save();
+
+  await notificationService.sendNotification({
+    type: "REFUND_INITIATED",
+    email: user.email,
+    payload: {
+      orderId: orderId,
+    },
+  });
 
   return refundEntry;
 };

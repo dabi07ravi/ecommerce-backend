@@ -54,10 +54,10 @@ exports.handleWebhook = async (req, res) => {
       refund.status = "REFUNDED";
       await refund.save();
 
-      await Order.update(
-        { status: "REFUNDED" },
-        { where: { id: refund.orderId } },
-      );
+      await paymentService.markPaymentRefunded({
+          id: refund.order_id,
+          status : refund.status,
+      });
     }
   }
 

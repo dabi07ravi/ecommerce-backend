@@ -7,14 +7,14 @@ const {
   OrderItem,
 } = require("../models");
 
+const inventoryService = require("../services/inventoryService");
+const notificationService = require("../notification/notification.service");
 
-const inventoryService = require('../services/inventoryService')
-
-const placeOrder = async (userId) => {
+const placeOrder = async (user) => {
   return sequelize.transaction(async (t) => {
     // 1️⃣ Load cart
     const cart = await Cart.findOne({
-      where: { userId },
+      where: { userId: user.userId },
       include: [{ model: CartItem, as: "items" }],
       transaction: t,
     });
@@ -47,7 +47,7 @@ const placeOrder = async (userId) => {
     // 3️⃣ Create order
     const order = await Order.create(
       {
-        userId,
+        userId: user.userId,
         totalAmount,
       },
       { transaction: t },
@@ -75,6 +75,15 @@ const placeOrder = async (userId) => {
     //   transaction: t,
     // });
     // ❌ DO NOT CLEAR CART HERE
+
+    await notificationService.sendNotification({
+      type: "ORDER_CREATED",
+      email: user.email,
+      phone: user.phone,
+      payload: {
+        orderId: order.id,
+      },
+    });
 
     return order;
   });
